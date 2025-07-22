@@ -2,7 +2,8 @@
   "name": "api_bff_woocommerce",
   "version": "1.0.0",
   "description": "",
-  "main": "index.js","scripts": {
+  "main": "index.js",
+  "scripts": {
     "start": "node index.js",
     "dev": "nodemon index.js | pino-pretty",
     "test": "echo \"Error: no test specified\" && exit 1"
@@ -12,6 +13,7 @@
   "license": "ISC",
   "dependencies": {
     "@supabase/supabase-js": "^2.52.0",
+    "@woocommerce/woocommerce-rest-api": "^1.0.2",
     "dotenv": "^17.2.0",
     "express": "^5.1.0",
     "pino": "^9.7.0",
