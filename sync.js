@@ -28,17 +28,30 @@ const ProductSchema = z.object({
     slug: z.string(),
     type: z.enum(['simple', 'variable', 'bundle', 'variation', 'grouped', 'external']),
     status: z.string(),
-    description: z.string().default(''),
-    short_description: z.string().default(''),
-    sku: z.string().min(1, { message: "SKU no puede estar vacío." }),
-    price: z.string(),
-    regular_price: z.string().nullable().default('0'),
-    sale_price: z.string().nullable().default('0'),
+    description: z.string().nullable().default(''),
+    short_description: z.string().nullable().default(''),
+    
+    // Validamos que el SKU sea un string, y luego lo refinamos.
+    // Esto nos da más control y mensajes de error más claros.
+    sku: z.string().nullable().default(''),
+    
+    // Coerce (fuerza) los precios a ser strings, incluso si vienen como números.
+    // Luego los parsearemos a float.
+    price: z.coerce.string().default('0'),
+    regular_price: z.coerce.string().nullable().default('0'),
+    sale_price: z.coerce.string().nullable().default('0'),
+    
     on_sale: z.boolean(),
-    stock_quantity: z.number().int().nullable(),
+    
+    // Coerce a número, manejando nulls o strings vacíos.
+    stock_quantity: z.coerce.number().int().nullable(),
+    
     stock_status: z.enum(['instock', 'outofstock', 'onbackorder']),
     manage_stock: z.boolean(),
     date_modified_gmt: z.string(),
+}).refine(data => data.sku.trim().length > 0, {
+    message: "SKU no puede estar vacío.",
+    path: ["sku"], // Asocia el error al campo 'sku'
 });
 
 function transformWooProduct(productData) {
@@ -117,11 +130,14 @@ async function syncAllProducts() {
 
         for (const product of productsFromApi) {
             try {
+                logger.info({ wc_product_id: product.id, name: product.name, sku: product.sku }, 'Validando producto...');
+
                 const transformed = transformWooProduct(product);
                 productsToUpsert.push(transformed);
             } catch (error) {
                 if (error instanceof z.ZodError) {
-                    const skuError = error.errors.find(e => e.path.includes('sku'));
+                    const skuError = error.errors && error.errors.find(e => e.path.includes('sku'));
+                    // Si el error es por SKU, lo manejamos de forma especial
                     if (skuError) {
                         logger.warn({ wc_product_id: product.id, name: product.name }, `PRODUCTO IGNORADO: Falta SKU.`);
                     } else {
