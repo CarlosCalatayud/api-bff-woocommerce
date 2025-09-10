@@ -20,14 +20,15 @@ const whitelist = [
 
 const corsOptions = {
     origin: function (origin, callback) {
-        // `!origin` permite peticiones sin origen (como las de Postman o apps móviles)
-        if (whitelist.indexOf(origin) !== -1 || !origin) {
+        // Permitir peticiones si están en la whitelist O si son del entorno de desarrollo local
+        if (whitelist.indexOf(origin) !== -1 || !origin || origin.startsWith('http://localhost:')) {
             callback(null, true);
         } else {
+            // Logueamos el origen bloqueado para poder añadirlo si es necesario
+            logger.warn({ origin: origin }, 'Origen bloqueado por CORS');
             callback(new Error('No permitido por la política de CORS'));
         }
     }
-};
 
 
 // Cliente de Supabase para el BACKEND (webhook) - USA LA SERVICE KEY
