@@ -14,6 +14,7 @@
   "dependencies": {
     "@supabase/supabase-js": "^2.52.0",
     "@woocommerce/woocommerce-rest-api": "^1.0.2",
+    "cors": "^2.8.5",
     "dotenv": "^17.2.0",
     "express": "^5.1.0",
     "pino": "^9.7.0",

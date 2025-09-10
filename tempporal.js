@@ -4,31 +4,11 @@ const express = require('express');
 const { createClient } = require('@supabase/supabase-js');
 const crypto = require('crypto');
 const pino = require('pino');
-const cors = require('cors');
 
 // --- 1. CONFIGURACIÓN Y CLIENTES ---
 const app = express();
 const PORT = process.env.PORT || 3001;
 const logger = pino({ level: process.env.LOG_LEVEL || 'info' });
-// --- Configuración de CORS ---
-const whitelist = [
-    'https://preview--solara-proyecto-gestor.lovable.app', // Tu frontend de preview
-    // 'https://tu-dominio-de-produccion.com', // DESCOMENTA Y AÑADE TU DOMINIO FINAL AQUÍ
-    'http://localhost:3000', // Si desarrollas el frontend en local
-    'http://localhost:5173'  // Otro puerto común para Vite/React en local
-];
-
-const corsOptions = {
-    origin: function (origin, callback) {
-        // `!origin` permite peticiones sin origen (como las de Postman o apps móviles)
-        if (whitelist.indexOf(origin) !== -1 || !origin) {
-            callback(null, true);
-        } else {
-            callback(new Error('No permitido por la política de CORS'));
-        }
-    }
-};
-
 
 // Cliente de Supabase para el BACKEND (webhook) - USA LA SERVICE KEY
 const supabaseAdmin = createClient(
@@ -64,7 +44,6 @@ const verifyWooCommerceWebhook = (req, res, next) => {
 };
 
 // Middleware para parsear JSON en los endpoints públicos
-app.use(cors(corsOptions));
 app.use(express.json());
 
 
