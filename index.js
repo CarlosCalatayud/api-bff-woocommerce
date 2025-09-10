@@ -29,6 +29,7 @@ const corsOptions = {
             callback(new Error('No permitido por la política de CORS'));
         }
     }
+};
 
 
 // Cliente de Supabase para el BACKEND (webhook) - USA LA SERVICE KEY
